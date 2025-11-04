@@ -1,0 +1,70 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "btshortstay",
+          "appId": "1:170570584621:android:503685326bbc98c43e1ea4",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "btshortstay",
+          "configurations": {
+            "android": "1:170570584621:android:503685326bbc98c43e1ea4",
+            "ios": "1:170570584621:ios:7ffddc507c30c23f3e1ea4",
+            "macos": "1:170570584621:ios:7ffddc507c30c23f3e1ea4",
+            "web": "1:170570584621:web:a5b49f7129dec1263e1ea4",
+            "windows": "1:170570584621:web:cfae033c163a0c9f3e1ea4"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ],
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5002
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4002
+    },
+    "hub": {
+      "port": 4402
+    },
+    "logging": {
+      "port": 4502
+    }
+  }
+}

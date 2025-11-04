@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "170570584621",
+    "project_id": "btshortstay",
+    "storage_bucket": "btshortstay.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170570584621:android:80a8b688415e2d603e1ea4",
+        "android_client_info": {
+          "package_name": "com.btshortstay.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhiI6qZxjf5B8HLSmuupj_1LrbggSuVeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170570584621:android:b08c86c14569af293e1ea4",
+        "android_client_info": {
+          "package_name": "com.example.btshort"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhiI6qZxjf5B8HLSmuupj_1LrbggSuVeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170570584621:android:503685326bbc98c43e1ea4",
+        "android_client_info": {
+          "package_name": "com.example.btshorts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhiI6qZxjf5B8HLSmuupj_1LrbggSuVeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

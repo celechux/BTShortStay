@@ -1,0 +1,82 @@
+# =====================================
+# FLUTTER / DART
+# =====================================
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Android / iOS / macOS builds
+android/app/build/
+android/.gradle/
+android/app/.cxx/
+android/local.properties
+android/key.properties
+**/*.apk
+**/*.aab
+**/outputs/
+**/native-debug-symbols/
+*.keystore
+*.jks
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+*.xcworkspace
+
+# Symbolication / Obfuscation
+app.*.symbols
+app.*.map.json
+
+# =====================================
+# FIREBASE FUNCTIONS (Node.js)
+# =====================================
+functions/node_modules/
+functions/lib/
+functions/dist/
+functions/.firebase/
+functions/.cache/
+functions/.tsbuildinfo
+functions/coverage/
+functions/.nyc_output/
+functions/.env
+functions/.env.*
+!functions/.env.example
+functions/firebase-debug.log
+
+# =====================================
+# ENV / LOGS / CACHE
+# =====================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+firebase-debug.log
+.env
+.env.*
+!.env.example
+.cache/
+.tmp/
+.pnp.*
+.pnp.js
+.parcel-cache
+
+# =====================================
+# IDE / EDITOR / SYSTEM
+# =====================================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+*.swp
+*.pyc
+*.class
