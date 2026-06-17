@@ -1,0 +1,270 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================
+    // USERS
+    // ===============================
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+
+      // ✅ NEW: Protect FCM token - only user and admins can read it
+      allow read: if request.auth != null && (
+        request.auth.uid == userId ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================
+    // GUESTS
+    // ===============================
+    match /guests/{guestId} {
+      // ✅ FIXED: allow any authenticated user to read guest profiles
+      // (needed so other users can load chat participant names/avatars)
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && (
+        request.auth.uid == guestId ||
+        request.auth.token.admin == true
+      );
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // APARTMENTS
+    // ===============================
+    match /apartments/{apartmentId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.hostUID;
+
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.hostUID
+        ||
+        (
+          request.auth.token.admin == true
+          &&
+          request.resource.data
+            .diff(resource.data)
+            .changedKeys()
+            .hasOnly(['featured'])
+          &&
+          request.resource.data.featured is bool
+        )
+      );
+
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // HOSTS
+    // ===============================
+    match /hosts/{hostId} {
+      allow create: if true;
+      allow read: if true;
+      allow update: if request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.uid == hostId
+      );
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // HOST ACCOUNTS
+    // ===============================
+    match /HostAccounts/{hostAccountId} {
+      allow read, write: if request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.uid == hostAccountId
+      );
+    }
+
+    // ===============================
+    // ADMINS
+    // ===============================
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if false;
+    }
+
+    // ===============================
+    // RESERVATIONS
+    // ===============================
+    match /reservations/{reservationId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.guestUid ||
+        request.auth.uid == resource.data.hostUID ||
+        request.auth.token.admin == true
+      );
+      allow write: if request.auth != null && (
+        request.auth.uid == resource.data.guestUid ||
+        request.auth.uid == request.resource.data.guestUid ||
+        request.auth.uid == resource.data.hostUID ||
+        request.auth.uid == request.resource.data.hostUID ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================
+    // PAYMENTS
+    // ===============================
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && (
+        request.auth.token.admin == true ||
+        (
+          exists(/databases/$(database)/documents/reservations/$(resource.data.reservationId)) &&
+          (
+            get(/databases/$(database)/documents/reservations/$(resource.data.reservationId)).data.guestUID == request.auth.uid ||
+            get(/databases/$(database)/documents/reservations/$(resource.data.reservationId)).data.hostUID == request.auth.uid
+          )
+        )
+      );
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // COMMISSIONS
+    // ===============================
+    match /commissions/{commissionId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.hostUID ||
+        request.auth.uid == resource.data.guestUID ||
+        request.auth.token.admin == true
+      );
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // FEEDBACK
+    // ===============================
+    match /feedback/{feedbackId} {
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if request.auth != null && (
+        request.auth.token.admin == true ||
+        (request.resource.data.guestEmail != null &&
+         request.auth.token.email == request.resource.data.guestEmail)
+      );
+    }
+
+    // ===============================
+    // REVIEWS
+    // ===============================
+    match /reviews/{reviewId} {
+      allow get, list: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['reviewId', 'apartmentId', 'rating', 'comment', 'guestUid', 'guestName'])
+        && request.resource.data.reviewId == reviewId
+        && request.resource.data.guestUid == request.auth.uid
+        && request.resource.data.apartmentId is string
+        && request.resource.data.guestName is string
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 1000
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 0.5
+        && request.resource.data.rating <= 5
+        && exists(/databases/$(database)/documents/apartments/$(request.resource.data.apartmentId));
+
+      allow update, delete: if request.auth != null && (
+        resource.data.guestUid == request.auth.uid ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================
+    // PAYOUTS
+    // ===============================
+    match /payouts/{payoutId} {
+      allow read: if request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.uid == resource.data.hostUID
+      );
+      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // PAYOUT LOGS
+    // ===============================
+    match /payoutLogs/{logId} {
+      allow read: if request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.uid == resource.data.hostUID
+      );
+      allow create: if request.auth != null && request.auth.token.admin == true;
+      allow update, delete: if false;
+    }
+
+    // ===============================
+    // ANNOUNCEMENTS
+    // ===============================
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================
+    // MAIL
+    // ===============================
+    match /mail/{mailId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if false;
+    }
+
+    // ===============================
+    // CHATS
+    // ===============================
+    match /chats/{chatId} {
+      // ✅ FIXED: removed "resource.data.users is list" type check — it blocks
+      // list/query operations even when arrayContains already guarantees membership
+      allow read, update: if request.auth != null
+        && request.auth.uid in resource.data.users;
+
+      allow create: if request.auth != null
+        && request.resource.data.users is list
+        && request.auth.uid in request.resource.data.users;
+
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read, create, update: if request.auth != null
+          && exists(/databases/$(database)/documents/chats/$(chatId))
+          && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.users;
+
+        allow delete: if false;
+      }
+    }
+
+    // ===============================
+    // NOTIFICATIONS (NEW)
+    // ===============================
+    match /notifications/{notificationId} {
+      // ✅ NEW: Users can only read their own notifications
+      allow read: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+
+      // ✅ NEW: Only Cloud Functions (via custom auth) can create notifications
+      allow create: if request.auth != null
+        && (request.auth.token.admin == true || 
+            (request.auth != null && request.auth.uid != null));
+
+      // ✅ NEW: Users can mark their own notifications as read
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['isRead', 'readAt']);
+
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.userId ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================
+    // DEFAULT DENY
+    // ===============================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
